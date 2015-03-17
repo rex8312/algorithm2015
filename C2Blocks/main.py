@@ -75,7 +75,7 @@ def generate_case_s(seed):
 
 
 # queue 사용
-def generate_case_q(seed):
+def depth_first_search(is_valid, target_length, seed):
     queue = seed[:]
 
     while True:
@@ -115,9 +115,9 @@ def print_ans(org_puzzle, width, height, verbose=False):
         if is_full(puzzle):
             n += 1
             if verbose:
-                print n
+                print n, case
                 print puzzle
-                print case
+                print
     print 'Total n: {}'.format(n)
 
 
@@ -125,8 +125,9 @@ if __name__ == '__main__':
     print '(0)'
     WIDTH, HEIGHT = 3, 2
     puzzle = create_puzzle(WIDTH, HEIGHT)
-    print_ans(puzzle, WIDTH, HEIGHT)
+    print_ans(puzzle, WIDTH, HEIGHT, True)
 
+    exit()
     print
     print '(a)'
     WIDTH, HEIGHT = 7, 3
