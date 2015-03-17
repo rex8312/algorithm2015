@@ -55,28 +55,11 @@ def is_full(puzzle):
 
 
 # stack 사용
-
 target_length = 3
 seed = [[0], [1], [2], [3], [4]]
 
+
 def generate_case_s(seed):
-    def func(length, xs):
-        if length == 1:
-            return xs
-        else:
-            _xs = list()
-            for x in xs:
-                for s in seed:
-                    _xs.append(x + s)
-            return func(length - 1, _xs)
-
-    ys = func(target_length, seed)
-    return ys
-
-print len(generate_case_s(seed))
-
-
-def generate_case(seed):
     def func(length, xs):
         if length == 1:
             return xs
@@ -94,76 +77,80 @@ def generate_case(seed):
 # queue 사용
 def generate_case_q(seed):
     queue = seed[:]
-    ys = []
 
     while True:
         x = queue.pop(0)
-        if len(x) > target_length:
+        if len(x) == target_length:
+            yield x
+        elif len(x) > target_length:
             break
-        ys.append(x)
         for s in seed:
             queue.append(x + s)
 
-    ys = filter(lambda x: len(x) == target_length, ys)
-    return ys
 
-print len(generate_case_q(seed))
+def generate_case(target_length, seed):
+    stack = seed[:]
+
+    while len(stack) > 0:
+        x = stack.pop()
+        if len(x) == target_length:
+            yield x
+        else:
+            for s in seed:
+                stack.append(x + s)
 
 
-if __name__ == '__main__':
-    """
-    puzzle = create_puzzle(8, 6)
+def print_ans(org_puzzle, width, height, verbose=False):
+    import copy
+    target_length = (width - 1) * (height - 1)
+    n = 0
 
-    print place_block(puzzle, 0, 0, 0)
-    print place_block(puzzle, 1, 0, 2, 2)
-    print place_block(puzzle, 3, 0, 0, 3)
-    print place_block(puzzle, 4, 0, 2, 4)
-    print puzzle
-
-    print is_full(puzzle)
-
-    puzzle = [[1, 1], [1, 1]]
-    print is_full(puzzle)
-    """
-    print '(0)'
-    WIDTH, HEIGHT = 3, 2
-    target_length = (WIDTH - 1) * (HEIGHT - 1)
-
-    cases = generate_case_s(seed)
-    for case in cases:
-        puzzle = create_puzzle(WIDTH, HEIGHT)
+    for case in generate_case(target_length, seed):
+        puzzle = copy.deepcopy(org_puzzle)
         for idx, r in enumerate(case):
             x = idx % (WIDTH - 1)
             y = idx / (WIDTH - 1)
             place_block(puzzle, x, y, r, idx + 1)
 
         if is_full(puzzle):
-            print puzzle
-            print case
+            n += 1
+            if verbose:
+                print n
+                print puzzle
+                print case
+    print 'Total n: {}'.format(n)
+
+
+if __name__ == '__main__':
+    print '(0)'
+    WIDTH, HEIGHT = 3, 2
+    puzzle = create_puzzle(WIDTH, HEIGHT)
+    print_ans(puzzle, WIDTH, HEIGHT)
 
     print
     print '(a)'
     WIDTH, HEIGHT = 7, 3
-    target_length = (WIDTH - 1) * (HEIGHT - 1)
     puzzle = np.array([
         [99, 0, 0, 0, 0, 0, 99],
         [99, 0, 0, 0, 0, 0, 99],
         [99, 99, 0, 0, 0, 99, 99],
         ])
 
+    print_ans(puzzle, WIDTH, HEIGHT)
 
-    cases = generate_case_q(seed)
-    for case in cases:
-        print case
-        """
-        puzzle = puzzle[:]
+    print
+    print '(b)'
+    WIDTH, HEIGHT = 7, 3
+    puzzle = np.array([
+        [99, 0, 0, 0, 0, 0, 99],
+        [99, 0, 0, 0, 0, 0, 99],
+        [99, 99, 0, 0, 99, 99, 99],
+        ])
 
-        for idx, r in enumerate(case):
-            x = idx % (WIDTH - 1)
-            y = idx / (WIDTH - 1)
-            #place_block(puzzle, x, y, r, idx + 1)
+    print_ans(puzzle, WIDTH, HEIGHT)
 
-        if is_full(puzzle):
-            print puzzle
-            print case
-        """
+    print
+    print '(c)'
+    WIDTH, HEIGHT = 8, 6
+    puzzle = create_puzzle(WIDTH, HEIGHT)
+    print_ans(puzzle, WIDTH, HEIGHT)
