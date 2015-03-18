@@ -6,7 +6,13 @@ __author__ = 'Hyunsoo'
 import numpy as np
 import pylab as pl
 import copy
-import time
+from progressbar import ProgressBar
+from progressbar import Percentage
+from progressbar import Bar
+from progressbar import RotatingMarker
+from progressbar import ETA
+from progressbar import Counter
+from progressbar import FileTransferSpeed
 
 
 blocks = [
@@ -74,24 +80,42 @@ def is_promising_case(puzzle, case):
         y = idx / (width - 1)
         if not place_block(puzzle, x, y, r, idx + 1):
             return False
+
+        for _y in range(y + 1):
+            for _x in range(x + 1):
+                if _y < y:
+                    if _x < x:
+                        if puzzle[y][x] == 0:
+                            return False
     return True
 
 
 # queue 사용
 def depth_first_search(org_puzzle, target_length, seed):
     queue = seed[:]
+    max_iter = 0
 
-    while True:
+    iter = 0
+    drop = 0
+    while len(queue) > 0:
         x = queue.pop(0)
-        if len(x) > target_length:
-            break
-        puzzle = copy.deepcopy(org_puzzle)
-        if is_promising_case(puzzle, x):
-            if is_full(puzzle):
-                yield x, puzzle
+        if len(x) <= target_length:
+            puzzle = copy.deepcopy(org_puzzle)
+            if is_promising_case(puzzle, x):
+                if is_full(puzzle):
+                    yield x, puzzle
+                else:
+                    for s in seed:
+                        queue.append(x + s)
             else:
-                for s in seed:
-                    queue.append(x + s)
+                drop += 1
+        else:
+            drop += 1
+
+        max_iter = iter + len(queue)
+        print '\rDrop:', drop, 'nSearch:', iter, 'nQueue: ', len(queue), 'cmp: ', float(iter) / max_iter,
+        iter += 1
+    print
 
 
 def print_ans(tag, org_puzzle, width, height, verbose=False):
@@ -113,7 +137,7 @@ if __name__ == '__main__':
     print '(0)'
     WIDTH, HEIGHT = 3, 2
     puzzle = create_puzzle(WIDTH, HEIGHT)
-    print_ans('0', puzzle, WIDTH, HEIGHT, True)
+    print_ans('0', puzzle, WIDTH, HEIGHT, False)
 
     print
     print '(1)'
@@ -126,7 +150,7 @@ if __name__ == '__main__':
         [B, B, B, B, B, B, B],
     ])
 
-    print_ans('1', puzzle, WIDTH, HEIGHT, True)
+    print_ans('1', puzzle, WIDTH, HEIGHT, False)
 
     print
     print '(a)'
@@ -137,7 +161,7 @@ if __name__ == '__main__':
         [B, B, 0, 0, 0, B, B],
     ])
 
-    print_ans('a', puzzle, WIDTH, HEIGHT, True)
+    print_ans('a', puzzle, WIDTH, HEIGHT, False)
 
     print
     print '(b)'
@@ -148,10 +172,10 @@ if __name__ == '__main__':
         [B, B, 0, 0, B, B, B],
     ])
 
-    print_ans('b', puzzle, WIDTH, HEIGHT, True)
+    print_ans('b', puzzle, WIDTH, HEIGHT, False)
 
     print
     print '(c)'
     WIDTH, HEIGHT = 8, 6
     puzzle = create_puzzle(WIDTH, HEIGHT)
-    print_ans('c', puzzle, WIDTH, HEIGHT, True)
+    print_ans('c', puzzle, WIDTH, HEIGHT, False)
