@@ -81,28 +81,32 @@ def is_promising_case(puzzle, case):
         if not place_block(puzzle, x, y, r, idx + 1):
             return False
 
-        for _y in range(y + 1):
-            for _x in range(x + 1):
-                if _y < y:
-                    if _x < x:
-                        if puzzle[y][x] == 0:
-                            return False
+        for _y in range(y):
+            for _x in range(width):
+                if puzzle[_y][_x] == 0:
+                    return False
+
+        for _x in range(x):
+            if puzzle[y][_x] == 0:
+                return False
+
     return True
 
 
 # queue 사용
 def depth_first_search(org_puzzle, target_length, seed):
     queue = seed[:]
-    max_iter = 0
 
     iter = 0
     drop = 0
+    found = 0
     while len(queue) > 0:
         x = queue.pop(0)
         if len(x) <= target_length:
             puzzle = copy.deepcopy(org_puzzle)
             if is_promising_case(puzzle, x):
                 if is_full(puzzle):
+                    found += 1
                     yield x, puzzle
                 else:
                     for s in seed:
@@ -113,7 +117,7 @@ def depth_first_search(org_puzzle, target_length, seed):
             drop += 1
 
         max_iter = iter + len(queue)
-        print '\rDrop:', drop, 'nSearch:', iter, 'nQueue: ', len(queue), 'cmp: ', float(iter) / max_iter,
+        print '\rDrop:', drop, 'nSearch:', iter, 'nQueue: ', len(queue), 'Found: ', found, 'cmp: ', float(iter) / max_iter,
         iter += 1
     print
 
