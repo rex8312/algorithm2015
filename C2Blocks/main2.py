@@ -180,6 +180,11 @@ if __name__ == '__main__':
 
     print
     print '(c)'
+    import time
+    import datetime
+    stime = time.time()
     WIDTH, HEIGHT = 8, 6
     puzzle = create_puzzle(WIDTH, HEIGHT)
     print_ans('c', puzzle, WIDTH, HEIGHT, False)
+    etime = time.time()
+    print datetime.timedelta(seconds=etime-stime)
