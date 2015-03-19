@@ -117,7 +117,7 @@ def draw(tree, title='none'):
 
     import pylab as pl
     pl.imshow(img, interpolation='None', cmap='gray')
-    pl.savefig('{}.png'.format(title))
+    pl.savefig('results/{}.png'.format(title))
 
 
 if __name__ == '__main__':
