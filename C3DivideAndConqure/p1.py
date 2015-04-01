@@ -131,3 +131,9 @@ if __name__ == '__main__':
     print_code(icode)
     draw(tree, 'inverted')
 
+    """
+    [[1, 0, [1, 1, [0, 0, 1, 1], 0], 1], 0, [1, 0, 1, 1], [1, 1, 1, [0, 0, 1, 0]]]
+    X w w w b X w X w b b b w w X X X w w b b b w w w w b b
+    X w b X w w X b b w w b w b X w b w w X w w w X b b w b
+    """
+
