@@ -68,7 +68,7 @@ def k_means_search(xs, k):
             c_idx = find_the_closest(x, bins)
             n = n_items[c_idx]
             new_c = n / (n+1.) * bins[c_idx] + 1. / (n+1.) * x
-            if abs(new_c - bins[c_idx]) > 0.001:
+            if abs(new_c - bins[c_idx]) > 10e-6:
                 cont = True
             bins[c_idx] = new_c
 
@@ -86,8 +86,8 @@ def k_means_search(xs, k):
 
 
 if __name__ == '__main__':
-    xs = np.random.randint(0, 50, 100)
-    s = 10
+    xs = np.random.randint(0, 20, 100)
+    s = 5
     print bf_search(xs, s)
     print k_means_search(xs, s)
     #pl.hist(xs, bins=20)
