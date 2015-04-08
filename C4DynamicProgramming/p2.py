@@ -93,6 +93,19 @@ if __name__ == '__main__':
     #pl.hist(xs, bins=20)
     #pl.show()
 
+    correct = 0
+    error = 0
+    for _ in range(1000):
+        xs = np.random.randint(0, 20, 100)
+        s = 5
+        ys0 = bf_search(xs, s)
+        ys1 = k_means_search(xs, s)
+        if ys0[0] == ys1[0]:
+            correct += 1
+        error = ys1[0] - ys0[0]
+    print 'ACC:', correct / 1000.
+    print 'ERR:', error / 1000.
+
     setup_script = """
 from __main__ import bf_search
 from __main__ import k_means_search

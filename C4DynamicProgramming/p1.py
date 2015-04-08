@@ -51,92 +51,52 @@ def bf_search(xs):
     return len(rs[0]), rs
 
 
-def f1(xs):
-    max_length = 0
-    start = None
+def n_square(xs):
+    t = dict()
 
-    for i, x1 in enumerate(xs):
-        n_count = 1
-        lower_limit = x1
-        for j, x2 in enumerate(xs):
-            if i < j and lower_limit < x2:
-                n_count += 1
-                lower_limit = x2
+    for i1, x1 in enumerate(xs):
+        for i2, x2 in enumerate(xs):
+            if x1 < x2 and i1 < i2:
+                t.setdefault(x1, list())
+                t[x1].append(x2)
 
-        if n_count >= max_length:
-            max_length = n_count
-            start = x1
-    return max_length, start
-
-
-def f2(xs):
-    def func(xs):
-        if len(xs) > 1:
-            xs1_valid, xs1 = func(xs[:len(xs)/2])
-            xs2_valid, xs2 = func(xs[len(xs)/2:])
-            if xs1_valid and xs2_valid and xs1[-1] < xs2[0]:
-                return True, xs1 + xs2
-            elif xs1_valid and xs2_valid and xs1[-1] >= xs2[0]:
-                if len(xs1) > len(xs2):
-                    return True, xs1
-                else:
-                    return True, xs2
-            elif xs1_valid and not xs2_valid:
-                return True, xs1
-            elif not xs1_valid and xs2_valid:
-                return True, xs2
-            else:
-                return False, []
+    def func(k, seq=list()):
+        if k not in t:
+            yield seq + [k]
         else:
-            return True, xs
-
-    valid, ys = func(xs)
-    return len(ys), ys
-
-
-def f3(xs):
+            for v in t[k]:
+                for y in func(v, seq[:] + [k]):
+                    yield y
 
     max_length = 0
+    rs = list()
+    for x in xs:
+        for y in func(x):
+            if len(y) > max_length:
+                rs = list()
+                rs.append(tuple(y))
+                max_length = len(y)
+            elif len(y) == max_length:
+                rs.append(tuple(y))
 
-    def func(xs):
-        if len(xs) == 1:
-            yield xs
-        else:
-            ys_list = list()
-            m_length = 0
-            for i, x in enumerate(xs):
-                for ys in func(xs[i + 1:]):
-                    if len(ys) > 0 and x < ys[0]:
-                        ys_list.append([x] + ys)
-                        if len([x] + ys) > m_length:
-                            m_length = len([x] + ys)
-
-            for ys in ys_list:
-                if len(ys) == m_length:
-                    yield ys
-
-    for ys in func(xs):
-        if len(ys) > max_length:
-            max_length = len(ys)
-            print ys, len(ys)
-
-    return (max_length, )
+    return max_length, rs
 
 
 if __name__ == '__main__':
     xs = generate_random_seq(10)
-    fx = f3
+    #fx = f4
     print xs
     print 'BF:', bf_search(xs)
-    print 'FX:', fx(xs)
+    print 'SQ:', n_square(xs)
+    #print 'FX:', fx(xs)
 
-    exit()
+    fx = n_square
     correct = 0
     for _ in range(1000):
         xs = generate_random_seq(10)
         if bf_search(xs)[0] == fx(xs)[0]:
             correct += 1
-    print 'ACC:', float(correct) / 1000
+    print fx.__name__, 'ACC:', float(correct) / 1000
 
     exit()
     s = 10
