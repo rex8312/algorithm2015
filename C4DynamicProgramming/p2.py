@@ -52,6 +52,46 @@ def bf_search(xs, s):
     return min_error, rs
 
 
+def bf_search2(xs, s):
+    min_n, max_n = min(xs), max(xs)
+    hist = [0.0 for _ in range(max_n - min_n + 3)]
+    errors = [float(max_n - min_n) for _ in range(max_n - min_n + 3)]
+
+    def init():
+        for x in xs:
+            hist[min_n + x] += 1.0
+
+    def apply_bin(errors, bin):
+        new_errors = errors[:]
+        for i, error in enumerate(errors):
+            dist = float(abs(i - bin - min_n))
+            new_errors[i] = min(error, dist)
+        return new_errors
+
+    def get_total_error(hist, errors):
+        rs = []
+        for h, e in zip(hist, errors):
+            rs.append(h * e)
+        return rs
+
+    init()
+    bins = list()
+    for _ in range(s):
+        _bins = list()
+        for bin in range(max_n - min_n + 1):
+            _errors = apply_bin(errors, bin)
+            total_error = get_total_error(hist, _errors)
+            _bins.append((sum(total_error), bin, _errors))
+            _bins.sort()
+        bins.append(_bins[0][1] + min_n)
+        errors = _bins[0][2]
+
+    bins = np.array(np.array(bins), dtype=int)
+    ys = digitize(xs, bins)
+    error = evaluate(xs, ys)
+    return error, sorted(bins.tolist())
+
+
 def k_means_search(xs, k):
     min_n, max_n = min(xs), max(xs)
     bins = np.linspace(min_n, max_n, k)
@@ -84,34 +124,56 @@ def k_means_search(xs, k):
     return error, sorted(bins.tolist()), n_iter
 
 
-
 if __name__ == '__main__':
-    xs = np.random.randint(0, 20, 100)
-    s = 5
-    print bf_search(xs, s)
-    print k_means_search(xs, s)
-    #pl.hist(xs, bins=20)
-    #pl.show()
+    MIN, MAX, LENGTH, N_SYMBOL, N_ITER = 0, 10, 50, 3, 100
+    xs = np.random.randint(MIN, MAX, LENGTH)
+    print xs
+    #print bf_search(xs, N_SYMBOL)
+    #print bf_search2(xs, N_SYMBOL)
+    #print k_means_search(xs, N_SYMBOL)
 
-    correct = 0
-    error = 0
-    for _ in range(1000):
-        xs = np.random.randint(0, 20, 100)
+    correct0, error0 = 0, 0
+    correct1, error1 = 0, 0
+
+    for _ in range(N_ITER):
+        xs = np.random.randint(MIN, MAX, LENGTH)
         s = 5
-        ys0 = bf_search(xs, s)
-        ys1 = k_means_search(xs, s)
-        if ys0[0] == ys1[0]:
-            correct += 1
-        error = ys1[0] - ys0[0]
-    print 'ACC:', correct / 1000.
-    print 'ERR:', error / 1000.
+        ys0 = bf_search(xs, N_SYMBOL)
 
+        ys1 = bf_search2(xs, N_SYMBOL)
+        if ys0[0] == ys1[0]:
+            correct0 += 1
+        error0 += ys1[0] - ys0[0]
+
+        ys1 = k_means_search(xs, N_SYMBOL)
+        if ys0[0] == ys1[0]:
+            correct1 += 1
+        error1 += ys1[0] - ys0[0]
+
+        if ys1[0] < ys0[0]:
+            print 'ERROR:', xs
+            print ys0
+            print ys1
+
+    print
+    print 'BF SEARCH 2'
+    print 'ACC:', correct0 / float(N_ITER)
+    print 'ERR DIFF:', error0 / float(N_ITER)
+
+    print
+    print 'KM'
+    print 'ACC:', correct1 / float(N_ITER)
+    print 'ERR DIFF:', error1 / float(N_ITER)
+
+    exit()
     setup_script = """
 from __main__ import bf_search
+from __main__ import bf_search2
 from __main__ import k_means_search
 import numpy as np
 xs = np.random.randint(0, 50, 100)
 s = 3
 """
     print 'BF:', timeit.timeit("bf_search(xs, s)", number=10, setup=setup_script)
+    print 'BF2:', timeit.timeit("bf_search2(xs, s)", number=10, setup=setup_script)
     print 'KM:', timeit.timeit("k_means_search(xs, s)", number=10, setup=setup_script)
