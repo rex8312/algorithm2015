@@ -126,11 +126,20 @@ def k_means_search(xs, k):
 
 def dp_search(xs, s):
     xs = sorted(xs)
+    n_miss = 0.
+    n_search = 0.
+
+    def get_avg(start, end):
+        if start == end:
+            return xs[start]
+        else:
+            return int((float(sum(xs[start:end])) / (end - start)) + 0.5)
 
     def func(start, end):
         error = 0.0
+        avg = get_avg(start, end)
         for x in xs[start:end]:
-            error += abs(x - xs[end]) ** 2
+            error += abs(x - avg) ** 2
         return error
 
     def generate_ks(length, ks=list()):
@@ -138,96 +147,80 @@ def dp_search(xs, s):
             yield ks
         else:
             for i in range(len(xs)):
-                for ks_ in generate_ks(length - 1, ks[:] + [i]):
-                    yield ks_
+                if len(ks) > 0 and ks[-1] > i:
+                    continue
+                else:
+                    for ks_ in generate_ks(length - 1, ks[:] + [i]):
+                        yield ks_
 
-    for ks in generate_ks(s):
-        print ks
-
-    exit()
     error_table = dict()
-    min_k, min_error = -1, 10e6
-    for k in range(len(xs)):
-        if (0, k) not in error_table:
-            error_table[(0, k)] = func(0, k)
-        error_1 = error_table[(0, k)]
+    min_ks, min_error = None, 10e6
 
-        if (k, len(xs)-1) not in error_table:
-            error_table[(k, len(xs)-1)] = func(k, len(xs)-1)
-        error_2 = error_table[(k, len(xs)-1)]
+    for ks in generate_ks(s - 1):
+        ks = [0] + ks + [len(xs)]
+        error = 0.0
 
-        error = error_1 + error_2
+        for i in range(len(ks) - 1):
+            start, end = ks[i], ks[i+1]
+
+            n_search += 1.
+            if (start, end) not in error_table:
+                n_miss += 1.
+                error_table[(start, end)] = func(start, end)
+            error += error_table[(start, end)]
 
         if error < min_error:
-            min_k, min_error = xs[k], error
+            min_error = error
+            min_ks = ks
 
-    from pprint import pprint
-    pprint(error_table)
-    print min_k, min_error
+    symbol = list()
+    for i in range(s):
+        start, end = min_ks[i], min_ks[i+1]
+        symbol.append(get_avg(start, end))
 
-    return
-
+    return min_error, symbol, 1.0 - (n_miss / n_search)
 
 
 if __name__ == '__main__':
-    xs = [1, 3, 2, 9, 10, 1, 2]
-    s = 1
-    ys = dp_search(xs, s)
-    print ys
-    exit()
-
-
-
-
-    MIN, MAX, LENGTH, N_SYMBOL, N_ITER = 0, 10, 50, 3, 100
-    xs = np.random.randint(MIN, MAX, LENGTH)
-    print xs
+    #xs = [1, 3, 2, 9, 10, 1, 2]
+    #N_SYMBOL = 2
     #print bf_search(xs, N_SYMBOL)
+    #print k_means_search(xs, N_SYMBOL)
+    #print dp_search(xs, N_SYMBOL)
+    #exit()
+
+    MIN, MAX, LENGTH, N_SYMBOL, N_ITER = 0, 10, 50, 5, 100
+    xs = np.random.randint(MIN, MAX, LENGTH)
+    print bf_search(xs, N_SYMBOL)
     #print bf_search2(xs, N_SYMBOL)
     #print k_means_search(xs, N_SYMBOL)
+    print dp_search(xs, N_SYMBOL)
+    #exit()
 
     correct0, error0 = 0, 0
     correct1, error1 = 0, 0
 
     for _ in range(N_ITER):
         xs = np.random.randint(MIN, MAX, LENGTH)
-        s = 5
         ys0 = bf_search(xs, N_SYMBOL)
-
-        ys1 = bf_search2(xs, N_SYMBOL)
-        if ys0[0] == ys1[0]:
+        ys1 = dp_search(xs, N_SYMBOL)
+        if ys0[0] >= ys1[0]:
             correct0 += 1
         error0 += ys1[0] - ys0[0]
 
-        ys1 = k_means_search(xs, N_SYMBOL)
-        if ys0[0] == ys1[0]:
-            correct1 += 1
-        error1 += ys1[0] - ys0[0]
-
-        if ys1[0] < ys0[0]:
-            print 'ERROR:', xs
-            print ys0
-            print ys1
-
     print
-    print 'BF SEARCH 2'
     print 'ACC:', correct0 / float(N_ITER)
     print 'ERR DIFF:', error0 / float(N_ITER)
+    #exit()
 
-    print
-    print 'KM'
-    print 'ACC:', correct1 / float(N_ITER)
-    print 'ERR DIFF:', error1 / float(N_ITER)
-
-    exit()
     setup_script = """
 from __main__ import bf_search
-from __main__ import bf_search2
+from __main__ import dp_search
 from __main__ import k_means_search
 import numpy as np
 xs = np.random.randint(0, 50, 100)
 s = 3
 """
     print 'BF:', timeit.timeit("bf_search(xs, s)", number=10, setup=setup_script)
-    print 'BF2:', timeit.timeit("bf_search2(xs, s)", number=10, setup=setup_script)
+    print 'BF2:', timeit.timeit("dp_search(xs, s)", number=10, setup=setup_script)
     print 'KM:', timeit.timeit("k_means_search(xs, s)", number=10, setup=setup_script)
