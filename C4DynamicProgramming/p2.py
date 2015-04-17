@@ -124,7 +124,61 @@ def k_means_search(xs, k):
     return error, sorted(bins.tolist()), n_iter
 
 
+def dp_search(xs, s):
+    xs = sorted(xs)
+
+    def func(start, end):
+        error = 0.0
+        for x in xs[start:end]:
+            error += abs(x - xs[end]) ** 2
+        return error
+
+    def generate_ks(length, ks=list()):
+        if length == 0:
+            yield ks
+        else:
+            for i in range(len(xs)):
+                for ks_ in generate_ks(length - 1, ks[:] + [i]):
+                    yield ks_
+
+    for ks in generate_ks(s):
+        print ks
+
+    exit()
+    error_table = dict()
+    min_k, min_error = -1, 10e6
+    for k in range(len(xs)):
+        if (0, k) not in error_table:
+            error_table[(0, k)] = func(0, k)
+        error_1 = error_table[(0, k)]
+
+        if (k, len(xs)-1) not in error_table:
+            error_table[(k, len(xs)-1)] = func(k, len(xs)-1)
+        error_2 = error_table[(k, len(xs)-1)]
+
+        error = error_1 + error_2
+
+        if error < min_error:
+            min_k, min_error = xs[k], error
+
+    from pprint import pprint
+    pprint(error_table)
+    print min_k, min_error
+
+    return
+
+
+
 if __name__ == '__main__':
+    xs = [1, 3, 2, 9, 10, 1, 2]
+    s = 1
+    ys = dp_search(xs, s)
+    print ys
+    exit()
+
+
+
+
     MIN, MAX, LENGTH, N_SYMBOL, N_ITER = 0, 10, 50, 3, 100
     xs = np.random.randint(MIN, MAX, LENGTH)
     print xs
