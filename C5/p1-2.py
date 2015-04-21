@@ -11,7 +11,7 @@ T = {
 
 def counts(N):
     codes = list()
-    for pre in sorted(T.keys(), reverse=True):
+    for pre in [N / 2, N / 2 + 1]:
         post = N - pre
         for pre_detail in T[pre]:
             for post_detail in T[post]:
@@ -22,8 +22,16 @@ def counts(N):
 
 
 if __name__ == '__main__':
-    for i in range(3, 6):
+    MAX = 50
+
+    for i in range(3, MAX):
+        print i
         counts(i)
 
-    print 5, '->', len(T[5])
+    from pprint import pprint
+
+    #pprint(T)
+    #exit()
+    for i in range(1, MAX):
+        print i, '->', len(T[i])
 

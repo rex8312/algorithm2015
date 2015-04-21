@@ -6,7 +6,7 @@ import numpy as np
 T = {
     1: [(1,)],
     2: [(1, 1), (2,)],
-    }
+}
 
 
 def counts(N):
@@ -22,8 +22,16 @@ def counts(N):
 
 
 if __name__ == '__main__':
+    MAX = 20
+
     for i in range(3, 6):
+        print i
         counts(i)
 
-    print 5, '->', len(T[5])
+    from pprint import pprint
+
+    pprint(T)
+    exit()
+    for i in range(1, MAX):
+        print i, '->', len(T[i])
 
