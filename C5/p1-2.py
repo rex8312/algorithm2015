@@ -55,7 +55,7 @@ def counts(N):
 
 
 if __name__ == '__main__':
-    MAX = 20
+    MAX = 25
     SYMMETRY = True
 
     for i in range(3, MAX):
