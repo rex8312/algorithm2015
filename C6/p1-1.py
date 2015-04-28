@@ -50,6 +50,10 @@ if __name__ == '__main__':
     W = np.sum(items, axis=0)[0] / 2
     print bf_search(W, items)
 
+    items = np.array([[10, 5], [15, 10], [1, 4]])
+    W = np.sum(items, axis=0)[0] / 2
+    print bf_search(W, items)
+
     w, items = gen_test_case()
     print bf_search(w, items)
 
