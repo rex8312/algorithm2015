@@ -34,6 +34,7 @@ if __name__ == '__main__':
         [5, 6, 7, 8],
         [10, 10, 10, 10],
         [50, 50, 50, 50],
+        [83, 1, 2],
     ]
 
     import pprint
@@ -41,10 +42,10 @@ if __name__ == '__main__':
     import datetime
 
     for x in xs:
-        stime = time.time()
+        stime = time.clock()
         print x
         print is_win(x)
-        etime = time.time()
+        etime = time.clock()
         print datetime.timedelta(seconds=etime-stime)
         #pprint.pprint(bb)
         print
